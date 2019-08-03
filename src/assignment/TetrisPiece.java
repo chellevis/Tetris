@@ -11,7 +11,12 @@ import java.awt.*;
  * need to do precomputation in the constructor to make this possible.
  */
 public final class TetrisPiece implements Piece {
-
+	
+	private PieceType piecetype;
+	private Point[] body;
+	private int rotationindex;
+	private int[] skirt;
+	
     /**
      * Construct a tetris piece of the given type. The piece should be in it's spawn orientation,
      * i.e., a rotation index of 0.
@@ -19,56 +24,52 @@ public final class TetrisPiece implements Piece {
      * You may freely add additional constructors, but please leave this one - it is used both in
      * the runner code and testing code.
      */
+	
+	//constructor
     public TetrisPiece(PieceType type) {
-        // TODO: Implement me.
+        this.piecetype = type;
+        this.rotationindex = 0;
+        this.body = Piece.getSpawnBody();
     }
 
     @Override
     public PieceType getType() {
-        // TODO: Implement me.
-        return null;
+        return this.piecetype;
     }
 
     @Override
     public int getRotationIndex() {
-        // TODO: Implement me.
-        return -1;
+        return this.rotationindex;
     }
 
     @Override
     public Piece clockwisePiece() {
-        // TODO: Implement me.
         return null;
     }
 
     @Override
     public Piece counterclockwisePiece() {
-        // TODO: Implement me.
         return null;
     }
 
     @Override
     public int getWidth() {
-        // TODO: Implement me.
-        return -1;
+        return this.piecetype.getBoundingBox().width;
     }
 
     @Override
     public int getHeight() {
-        // TODO: Implement me.
-        return -1;
+        return this.piecetype.getBoundingBox().height;
     }
 
     @Override
     public Point[] getBody() {
-        // TODO: Implement me.
-        return null;
+        return this.body;
     }
 
     @Override
-    public int[] getSkirt() {
-        // TODO: Implement me.
-        return null;
+    public int[] getSkirt() {     
+        return this.skirt;
     }
 
     @Override
@@ -76,8 +77,8 @@ public final class TetrisPiece implements Piece {
         // Ignore objects which aren't also tetris pieces.
         if(!(other instanceof TetrisPiece)) return false;
         TetrisPiece otherPiece = (TetrisPiece) other;
-
-        // TODO: Implement me.
-        return false;
+        if (otherPiece.body.equals(this.body)) return true;
+        else return false;
+        
     }
 }
