@@ -11,12 +11,11 @@ import java.awt.*;
  * need to do precomputation in the constructor to make this possible.
  */
 public final class TetrisPiece implements Piece {
-	
-	private PieceType piecetype;
+	private PieceType piece_type;
 	private Point[] body;
-	private int rotationindex;
+	private int rotation_index;
 	private int[] skirt;
-	
+	private TetrisPiece[] piece_bag;	
     /**
      * Construct a tetris piece of the given type. The piece should be in it's spawn orientation,
      * i.e., a rotation index of 0.
@@ -27,10 +26,24 @@ public final class TetrisPiece implements Piece {
 	
 	//constructor
     public TetrisPiece(PieceType type) {
-        this.piecetype = type;
-        this.rotationindex = 0;
-        this.body = Piece.getSpawnBody();
+        this.piece_type = type;
+        this.rotation_index = 0;
+        this.body = type.getSpawnBody();
+		
+		this.piece_bag = new PieceType[4];
+		for(int i = 0; i < 4; i++){
+			this.piece_bag[i] = 
+		}
+
     }
+	
+	public TetrisPiece(PieceType type, int rotation, Point[] body){
+		
+	}
+	public rotatePiece(TetrisPiece t_piece){
+		//rotate it
+		
+	}
 
     @Override
     public PieceType getType() {
@@ -44,7 +57,8 @@ public final class TetrisPiece implements Piece {
 
     @Override
     public Piece clockwisePiece() {
-        return null;
+		rotationindex = (rotationindex + 1) % 4
+        return pieceBag[rotationindex]
     }
 
     @Override
