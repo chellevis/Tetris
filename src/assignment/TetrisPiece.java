@@ -3,6 +3,7 @@ package assignment;
 import java.awt.*;
 import java.util.*;
 
+
 /**
  * An immutable representation of a tetris piece in a particular rotation.
  * 
@@ -12,157 +13,154 @@ import java.util.*;
  * need to do precomputation in the constructor to make this possible.
  */
 
+
 public final class TetrisPiece implements Piece {
 	
-	private PieceType piece_type;
-
-	private int rotation_index;
-	private int[] skirt;
+	private PieceType pieceType; 
+	private int rotationIndex; 
+	
 	private Point[] body;
-	private TetrisPiece[] piece_bag = null;
+	private int[] skirt; 
 	
-    /**
-     * Construct a tetris piece of the given type. The piece should be in it's spawn orientation,
-     * i.e., a rotation index of 0.
-     * 
-     * You may freely add additional constructors, but please leave this one - it is used both in
-     * the runner code and testing code.
-     */
+	private Dimension box;
+	private Point[][] bodies;
+	private int[][] skirts;
 	
 	
-	//constructor (initialize)
+/**
+ * Construct a tetris piece of the given type. The piece should be in it's spawn orientation,
+ * i.e., a rotation index of 0.
+ * 
+ * You may freely add additional constructors, but please leave this one - it is used both in
+ * the runner code and testing code.
+ */
+	
+	
+	// Constructor
     public TetrisPiece(PieceType type) {
-    	
-        this.piece_type = type;
-        this.rotation_index = 0;
+        this.pieceType = type; this.rotationIndex = 0;
+        
+        this.box = type.getBoundingBox();
         this.body = type.getSpawnBody();
+        this.skirt = TetrisPiece.calculateSkirt(this.body, this.box);
+        
+		this.bodies = new Point[4][];
+		this.skirts = new int[4][];
+		this.loadRotations();
 		
-		this.piece_bag = new TetrisPiece[4];
+	}
 		
-		TetrisPiece update = new TetrisPiece(type);
-		
-		for(int i = 0; i < 4; i++){
-			this.piece_bag[i].body = update.body;
-			//Dimension box = update.piece_type.getBoundingBox();
-			//this.piece_bag[i].skirt =  update.calculate_skirt(update.body, box.width, box.height);
-			update = update.rotatePiece(update);
-		}
-		
-		
-		
-    }
-    
-	/*//constructor (rotation_index)
-	public TetrisPiece(PieceType type, int rotation, Point[] body, Point[] skirt){
-		
-	}*/
 	
-	public int[] calculate_skirt (Point[] body, int width, int height) {
-
-		boolean[][] skirt = new boolean[width][height];
+	// returns NEW clockwise-rotated body 
+	public static Point[] rotateBody(Point[] body, Dimension box) { 
+			
+		Point[] newBody = new Point[body.length];
+		for (int i=0; i<body.length; i++) {
+			int x = body[i].y;
+			int y = (box.width - 1) - body[i].x;
+			newBody[i] = new Point(x, y);
+		}
+		return newBody;
+	}
 		
-		for (int i=0; i<width; i++) {
-			for (int j=0; j<height; j++) {
+		
+	// returns NEW skirt(int[]) from body, width, height (Point[], int, int)
+	public static int[] calculateSkirt (Point[] body, Dimension box) {
+		
+		boolean[][] skirt = new boolean[box.width][box.height]; //mapping body in a bounding box sized boolean matrix
+		for (int i=0; i<box.width; i++) {
+			for (int j=0; j<box.height; j++) {
 				for (int k=0; k<body.length; k++) {
-					if ((body[k].x == i)&&(body[k].y == j)) {
-						skirt[i][j] = true;
-					}
+					if ((body[k].x == i)&&(body[k].y == j)) { skirt[i][j] = true;}
 				}
 			}
 		}
-		
-		
-		
-		
-		
-		/*ArrayList<Integer>[] columns = new ArrayList<Integer>()[width];
-		
-		for (int i=0; i<body.length; i++) {
-			int column = body[i].x;
-			columns[column].
-					
-		}*/
-		
-		return skirt;
-	}
-	
-	//returns NEW clockwise-rotated piece 
-	public TetrisPiece rotatePiece(TetrisPiece piece) { 
-		
-		TetrisPiece new_piece = new TetrisPiece(piece.piece_type);
-		
-		for (int i=0; i<piece.body.length; i++) {
-			int x = piece.body[i].y;
-			int y = 2 - piece.body[i].x;
-			new_piece.body[i].setLocation(x, y);
+		int[] newSkirt = new int[box.width]; //record minimum from each vertical column
+		Arrays.fill(newSkirt, Integer.MAX_VALUE);
+		for (int i=0; i<box.width; i++) {
+			for (int j=0; j<box.height; j++) {
+				if (skirt[i][j] == true) { newSkirt[i] = j; break; }			
+			}
 		}
-		
-		return new_piece;
-		
+		return newSkirt;
 	}
 	
-	//string representation (body)
-	public String toString (TetrisPiece piece) {
+	
+	public void loadRotations () {
+		this.bodies[0] = this.pieceType.getSpawnBody();
+		this.skirts[0] = TetrisPiece.calculateSkirt(this.bodies[0], this.box);
 		
-		String body = "";
-		
-		for (int i=0; i<piece.body.length; i++) {
-			String point = "(" + Integer.toString(piece.body[i].x) + "," + Integer.toString(piece.body[i].y) + ")";
-			body += " " + point;
+		for(int i = 1; i < 4; i++){
+			//System.out.println(TetrisPiece.toString(bodies[0]));
+			this.bodies[i] = TetrisPiece.rotateBody(this.bodies[i-1], this.box);
+			this.skirts[i] = TetrisPiece.calculateSkirt(this.bodies[i], this.box);
 		}
-		return body;
 	}
 	
-
-    @Override
-    public PieceType getType() {
-        return this.piece_type;
-    }
-
-    @Override
-    public int getRotationIndex() {
-        return this.rotation_index;
-    }
-
+	
     @Override
     public Piece clockwisePiece() {
-		rotation_index = (rotation_index + 1) % 4;
-        return null;
+		this.rotationIndex = (this.rotationIndex + 1) % 4;
+		this.body = this.bodies[this.rotationIndex];
+		this.skirt = this.skirts[this.rotationIndex];
+        return this;
     }
 
+    
     @Override
     public Piece counterclockwisePiece() {
-    	rotation_index = (rotation_index - 1) % 4;
-        return null;
+    	this.rotationIndex = (this.rotationIndex + 3) % 4;
+    	this.body = this.bodies[this.rotationIndex];
+		this.skirt = this.skirts[this.rotationIndex];
+        return this;
     }
 
-    @Override
-    public int getWidth() {
-        return this.piece_type.getBoundingBox().width;
-    }
-
-    @Override
-    public int getHeight() {
-        return this.piece_type.getBoundingBox().height;
-    }
-
-    @Override
-    public Point[] getBody() {
-        return this.body;
-    }
-
-    @Override
-    public int[] getSkirt() {     
-        return this.skirt;
-    }
-
+    
     @Override
     public boolean equals(Object other) {
-        // Ignore objects which aren't also tetris pieces.
-        if(!(other instanceof TetrisPiece)) return false;
+        if(!(other instanceof TetrisPiece)) return false; // Ignore objects which aren't also tetris pieces.
         TetrisPiece otherPiece = (TetrisPiece) other;
         if (otherPiece.body.equals(this.body)) return true;
         else return false;
-        
     }
+	
+    
+    // getters
+    
+    @Override public PieceType getType() { return this.pieceType; }
+    @Override public int getRotationIndex() { return this.rotationIndex; }
+    @Override public int getWidth() { return this.box.width; }
+    @Override public int getHeight() { return this.box.height; }
+    @Override public Point[] getBody() { return this.body; }
+    @Override public int[] getSkirt() { return this.skirt; }
+    public int[][] getSkirts() { return this.skirts; }
+    public Point[][] getBodies() { return this.bodies; }
+    
+    
+    // TO STRINGs
+	
+	public static String toString (TetrisPiece piece) {
+		String pieceTypeString = "Piece Type:    " + piece.pieceType.toString() + " (" + piece.rotationIndex + ")";
+		String bodyString = "Body:         " + TetrisPiece.toString(piece.body);
+		String skirtString = "Skirt:         " + Arrays.toString(piece.skirt);
+		return pieceTypeString + "\n" + bodyString + "\n" + skirtString;
+	}
+	
+	public static String toString (Point[] body) {
+		String bodyString = "";
+		for (int i=0; i<body.length; i++) {
+			String point = "(" + Integer.toString(body[i].x) + "," + Integer.toString(body[i].y) + ")";
+			bodyString += " " + point;
+		}
+		return bodyString;
+	}
+	
+	public static String toString (Point[][] bodies) {
+		String bodiesString = "";
+		for (int i=0; i<bodies.length; i++) { bodiesString += "\n         " + i + ": " + TetrisPiece.toString(bodies[i]); }
+		return bodiesString;
+	}
+	
+	public static String toString (int[][] skirts) { return Arrays.deepToString(skirts); }
+    
 }
