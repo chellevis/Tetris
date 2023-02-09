@@ -1,5 +1,5 @@
-SO .... you know how github has this annoying banner that says, 
+This is Michelle's Tetris, A.K.A. a Java data structures project I made as an ode to the original arcade classic. 
 
-        "Help people interested in this repository understand your project by adding a README."
+        "A Java data structures project, and an ode to the original arcade classic game Tetris. "
         
-well there ya go. this is Michelle's Tetris. aka code that is written and formatted by the most anal-retentive person you'll ever know.
+The game itself is beautiful and simple -- Super Rotation System (SRS) used by the traditional arcade version provides the foundation of the rule implementation in this project. By using a Sparse Arrays as the underlying data structure, we can efficiently storage and manipulate of the game's grid. 
