@@ -1,4 +1,4 @@
-This is Michelle's Tetris, A.K.A. a Java data structures project I made as an ode to the original arcade classic. 
+This is Michelle's Tetris, A.K.A. 
 
         "A Java data structures project, and an ode to the original arcade classic game Tetris. "
         
